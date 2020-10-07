@@ -3,6 +3,8 @@ import React, { Component } from "react";
 import "./App.css";
 import RegisterForm from "./components/RegisterForm/RegisterForm";
 import "fontsource-roboto";
+import { toCheckCpf, toCheckPassword } from "./models/register";
+import ToCheckRegister from "./contexts/toCheckRegister";
 class App extends Component {
   render() {
     return (
@@ -13,7 +15,9 @@ class App extends Component {
           align="center">
           REGISTER
           </Typography>
-        <RegisterForm onSubmit={onSubmitForm} toCheckCpf={toCheckCpf} />
+        <ToCheckRegister.Provider value={{ cpf: toCheckCpf, password: toCheckPassword, name: toCheckPassword }}>
+          <RegisterForm onSubmit={onSubmitForm} />
+        </ToCheckRegister.Provider>
       </Container>
     );
   }
@@ -21,14 +25,6 @@ class App extends Component {
 
 function onSubmitForm(data) {
   console.log(data)
-}
-
-function toCheckCpf(cpf) {
-  if (cpf.length != 11) {
-    return { valid: false, text:"O CPF deve conter 11 dígitos" }
-  } else {
-    return { valid: true, text:"" }
-  }
 }
 
 export default App;

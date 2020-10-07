@@ -1,100 +1,44 @@
-import React, { useState } from 'react';
-import { TextField, Button, Switch, FormControlLabel } from '@material-ui/core';
+import React, { useState, useEffect } from 'react';
+import PersonalData from './PersonalData';
+import UserData from './UserData';
+import AddressData from './AddressData';
+import { Step, StepLabel, Stepper, Typography } from '@material-ui/core';
 
-function RegisterForm({ onSubmit, toCheckCpf }) {
-    const [name, setName] = useState("");
-    const [lastname, setLastname] = useState("");
-    const [cpf, setCpf] = useState("");
-    const [promos, setPromos] = useState(true);
-    const [newsletter, setNewsletter] = useState(true);
-    const [errors, setErrors] = useState({ cpf: { valid: true, text: "" } });
-    return (
-        <form
-            onSubmit={(event) => {
-                event.preventDefault();
-                onSubmit({ name, lastname, cpf, promos, newsletter });
-            }}>
-            <TextField
-                value={name}
-                onChange={(event) => {
-                    let tmpName = event.target.value;
-                    if (tmpName.length >= 3) {
-                        tmpName = tmpName.substr(0, 3);
-                    }
+function RegisterForm({ onSubmit, toCheck }) {
+    const [currentlyStep, setCurrentlyStep] = useState(0);
+    const [gettingData, setData] = useState({});
 
-                    setName(tmpName);
-                }}
-                id="name"
-                label="Name"
-                variant="outlined"
-                margin="normal"
-                fullWidth
-            />
-            <TextField
-                value={lastname}
-                onChange={(event) => {
-                    setLastname(event.target.value);
-                }}
-                id="lastname"
-                label="Last Name"
-                variant="outlined"
-                margin="normal"
-                fullWidth
-            />
-            <TextField
-                value={cpf}
-                onChange={(event) => {
-                    setCpf(event.target.value);
-                }}
+    useEffect(() => {
+        if (currentlyStep === forms.length - 1) {
+            onSubmit(gettingData);
+        }
+    })
 
-                onBlur={(event) => {
-                    const isValid = toCheckCpf(cpf);
-                    setErrors({ cpf: isValid })
-                }}
-                error={!errors.cpf.valid}
-                helperText={errors.cpf.text}
-                id="cpf"
-                label="CPF"
-                variant="outlined"
-                margin="normal"
-                fullWidth
-            />
+    const forms = [
+        <UserData onSubmit={getData} toCheck={toCheck} />,
+        <PersonalData onSubmit={getData} toCheck={toCheck} />,
+        <AddressData onSubmit={getData} toCheck={toCheck} />,
+        <Typography variant="h5">Thank you for your submit!</Typography>
+    ];
 
-            <FormControlLabel
-                label="Outlet %"
-                control={
-                    <Switch
-                        checked={promos}
-                        onChange={(event) => {
-                            setPromos(event.target.value);
-                        }}
-                        name="promos"
-                        defaultChecked={promos}
-                        color="primary"
-                    />
-                }
-            />
-            <FormControlLabel
-                label="Newsletter"
-                control={
-                    <Switch
-                        checked={newsletter}
-                        onChange={(event) => {
-                            setNewsletter(event.target.value);
-                        }}
-                        name="newsletter"
-                        defaultChecked={newsletter}
-                        color="primary"
-                    />
-                }
-            />
+    function getData(data) {
+        setData({ ...gettingData, ...data });
+        next();
+    }
 
-            <Button type="submit" variant="contained" color="primary">
-                LOGIN
-            </Button>
+    function next(data) {
+        setCurrentlyStep(currentlyStep + 1);
+    }
 
-        </form>
-    );
+    return <>
+        <Stepper activeStep={currentlyStep}>
+            <Step><StepLabel>Login</StepLabel></Step>
+            <Step><StepLabel>Personal</StepLabel></Step>
+            <Step><StepLabel>Address</StepLabel></Step>
+            <Step><StepLabel>Done!</StepLabel></Step>
+        </Stepper>
+        {forms[currentlyStep]}
+    </>;
 }
 
 export default RegisterForm;
